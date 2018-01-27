@@ -1,0 +1,19 @@
+galaxy_info:
+  author: Michael Lustenberger
+  description: Install the Nextcloud service
+  company: INOFIX GmbH
+  # issue_tracker_url: http://example.com/issue/tracker
+  license: license (GPLv3)
+  min_ansible_version: 2.0.0
+  #github_branch:
+  platforms:
+  - name: Debian
+    versions:
+    - all
+
+  galaxy_tags:
+    - owncloud:nextcloud
+    - storage:cloud
+    - system
+
+dependencies: []
