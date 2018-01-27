@@ -1,0 +1,41 @@
+---
+# tasks file for nextcloud
+#TODO depend on a separate PHP installation role?
+- name: Make sure the right group exists
+  group:
+    name: "{{ app__php__group }}"
+    system: yes
+
+- name: Make sure the right user exists
+  user:
+    name: "{{ app__php__user }}"
+    group: "{{ app__php__group }}"
+    system: yes
+
+- name: Download the package
+  environment:
+    http_proxy: "{{ http_proxy }}"
+  get_url:
+    checksum: "{{ nextcloud__checksum }}"
+    dest: "{{ nextcloud__home }}.{{ default__nextcloud__archive }}"
+    url: "{{ nextcloud__download_upstream }}"
+    owner: "{{ app__php__user }}"
+    group: "{{ app__php__group }}"
+    mode: "0644"
+
+- name: Create the installation directory
+  file:
+    path: "{{ nextcloud__home }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ app__php__user }}"
+    group: "{{ app__php__group }}"
+
+- name: Unpack the archive
+  unarchive:
+    remote_src: yes
+    creates: "{{ nextcloud__home }}/config/config.sample.php"
+    dest: "{{ nextcloud__home }}"
+    src: "{{ nextcloud__home }}/{{ default__nextcloud__archive }}"
+
+#TODO Configure
