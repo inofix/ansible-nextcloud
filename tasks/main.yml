@@ -36,6 +36,6 @@
     remote_src: yes
     creates: "{{ nextcloud__home }}/config/config.sample.php"
     dest: "{{ nextcloud__home }}"
-    src: "{{ nextcloud__home }}/{{ default__nextcloud__archive }}"
+    src: "{{ nextcloud__home }}.{{ default__nextcloud__archive }}"
 
 #TODO Configure
