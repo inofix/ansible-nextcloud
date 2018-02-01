@@ -1,5 +1,7 @@
 ---
 # vars file for nextcloud
+nextcloud__user: '{{ app__nextcloud__user | d(default__nextcloud__user) }}'
+nextcloud__group: '{{ app__nextcloud__group | d(default__nextcloud__group) }}'
 nextcloud__package: '{{ app__nextcloud__package | d(default__nextcloud__package) }}'
 nextcloud__home: '{{ app__nextcloud__home | d(default__nextcloud__home) }}'
 nextcloud__checksum: '{{ app__nextcloud__checksum | d(default__nextcloud__checksum) }}'
