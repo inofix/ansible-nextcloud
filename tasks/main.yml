@@ -12,6 +12,16 @@
     group: "{{ app__nextcloud__group }}"
     system: yes
 
+- name: Check whether it is not installed already
+  stat:
+    path: "{{ nextcloud__home }}"
+  register: nextcloud_stat
+
+- name: Leave if an installation is found
+  fail:
+    msg: "Error: We will not mess with existing installations, please clean up first.."
+  when: nextcloud_stat.stat.exists
+
 - name: Download the package
   environment:
     http_proxy: "{{ http_proxy }}"
@@ -23,9 +33,14 @@
     group: "{{ app__nextcloud__group }}"
     mode: "0644"
 
-- name: Create the installation directory
+- name: Make sure there is no temporary unpacking directory around
   file:
-    path: "{{ nextcloud__home }}"
+    path: "{{ nextcloud__home }}-tmp"
+    state: absent
+
+- name: Create the temporary unpacking directory
+  file:
+    path: "{{ nextcloud__home }}-tmp"
     state: directory
     mode: "0755"
     owner: "{{ app__nextcloud__user }}"
@@ -35,7 +50,15 @@
   unarchive:
     remote_src: yes
     creates: "{{ nextcloud__home }}/config/config.sample.php"
-    dest: "{{ nextcloud__home }}"
+    dest: "{{ nextcloud__home }}-tmp"
     src: "{{ nextcloud__home }}.{{ default__nextcloud__archive }}"
+
+- name: Move the installation to its final destination
+  command: 'mv {{ nextcloud__home }}-tmp/{{ nextcloud__name }} {{ nextcloud__home }}'
+
+- name: Clean up the temporary unpacking directory
+  file:
+    path: "{{ nextcloud__home }}-tmp"
+    state: absent
 
 #TODO Configure
