@@ -1,6 +1,9 @@
 ---
 # defaults file for nextcloud
 http_proxy: ""
+# default debian-style webserver user/group (override for e.g. fpm)
+default__nextcloud__user: "www-data"
+default__nextcloud__group: "www-data"
 default__nextcloud__archive: "tar.bz2"
 default__nextcloud__version: "8.1.12"
 default__nextcloud__base: "/srv/"

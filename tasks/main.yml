@@ -3,13 +3,13 @@
 #TODO depend on a separate PHP installation role?
 - name: Make sure the right group exists
   group:
-    name: "{{ app__php__group }}"
+    name: "{{ app__nextcloud__group }}"
     system: yes
 
 - name: Make sure the right user exists
   user:
-    name: "{{ app__php__user }}"
-    group: "{{ app__php__group }}"
+    name: "{{ app__nextcloud__user }}"
+    group: "{{ app__nextcloud__group }}"
     system: yes
 
 - name: Download the package
@@ -19,8 +19,8 @@
     checksum: "{{ nextcloud__checksum }}"
     dest: "{{ nextcloud__home }}.{{ default__nextcloud__archive }}"
     url: "{{ nextcloud__download_upstream }}"
-    owner: "{{ app__php__user }}"
-    group: "{{ app__php__group }}"
+    owner: "{{ app__nextcloud__user }}"
+    group: "{{ app__nextcloud__group }}"
     mode: "0644"
 
 - name: Create the installation directory
@@ -28,8 +28,8 @@
     path: "{{ nextcloud__home }}"
     state: directory
     mode: "0755"
-    owner: "{{ app__php__user }}"
-    group: "{{ app__php__group }}"
+    owner: "{{ app__nextcloud__user }}"
+    group: "{{ app__nextcloud__group }}"
 
 - name: Unpack the archive
   unarchive:
