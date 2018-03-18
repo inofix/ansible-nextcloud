@@ -63,3 +63,20 @@
   when: not nextcloud_stat.stat.exists
 
 #TODO Configure
+- name: Configure the installation
+  template:
+    src: "config.php.j2"
+    dest: "{{ nextcloud__config }}"
+
+- name: Install scripts setting the correct permissions
+  template:
+    src: "nextcloud-prepare.sh.j2"
+#TODO scriptsdir
+    dest: "{{ nextcloud__scripts_dir }}/nextcloud-prepare-{{ item.0 }}.sh"
+  vars:
+    nextcloud_maintenance: "{{ item.1 }}"
+  with_together:
+    - [ "upgrade", "production" ]
+    - [ true, false ]
+
+
