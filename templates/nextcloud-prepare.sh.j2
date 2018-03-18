@@ -15,10 +15,18 @@ nextcloud_home="{{ nextcloud__home }}"
 nextcloud_config="{{ nextcloud_config }}"
 nextcloud_data="{{ nextcloud__data }}"
 
+# php process owner (be it the webserver, be it fpm, ...)
 php_user='{{ nextcloud__user }}'
 php_group='{{ nextcloud__group }}'
+# root
 root_user='root'
 root_group='root'
+
+who_am_i=$(whoami)
+if [ "$who_am_i" != "$root_user" ] ; then
+    echo "Error: this script must run as the root user '$root_user'"
+    exit 1
+fi
 
 if [ ! -f "${nextcloud_config}" ] ||
     [ ! -e "${nextcloud__data}" ] ; then
@@ -60,6 +68,8 @@ find "${nextcloud_data}" -type d -print0 | xargs -0 chmod 0750
 
 # first be most restrictive
 chown -R ${root_user}:${php_group} "${nextcloud_home}"
+chmod 0750 "${nextcloud_home}"
+chmod 0750 "${nextcloud_data}"
 
 {% if (nextcloud_maintenance) %}
 # protect the data during upgrades, just in case
@@ -67,12 +77,17 @@ chown -R ${root_user}:${php_group} "${nextcloud_data}"
 
 # allow changes during upgrades
 echo "TODO: Does really everything have to belong to the PHP User?"
-own -R ${php_user}:${php_group} "${nextcloud_home}/*"
+chown -R ${php_user}:${php_group} "${nextcloud_home}/*"
 {% else %}
+# in production mode, obviously data must be writable
+chown -R ${php_user}:${php_group} "${nextcloud_data}"
+
+# it seems, that the config directory must always be writeable
+chown -R ${php_user}:${php_group} "${nextcloud_home}/config"
 # allow installation of apps and themes
-chown -R ${root_user}:${php_group} "${nextcloud_home}/3rdparty"
-chown -R ${root_user}:${php_group} "${nextcloud_home}/apps"
-chown -R ${root_user}:${php_group} "${nextcloud_home}/themes"
+chown -R ${php_user}:${php_group} "${nextcloud_home}/3rdparty"
+chown -R ${php_user}:${php_group} "${nextcloud_home}/apps"
+chown -R ${php_user}:${php_group} "${nextcloud_home}/themes"
 {% endif %}
 
 # control webserver access policy files
@@ -83,7 +98,7 @@ fi
 if [ -f "${nextcloud_data}/.htaccess" ] ; then
     chown ${root_user}:${php_group} "${nextcloud_data}/.htaccess"
     chmod 0644 "${nextcloud_data}/.htaccess"
-fi 
+fi
 
 {% if (nextcloud_maintenance) %}
 echo "Now upgrade with e.g. the following instructions:"

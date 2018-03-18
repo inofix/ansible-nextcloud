@@ -44,7 +44,7 @@
     group: "{{ app__nextcloud__group }}"
   when: not nextcloud_stat.stat.exists
 
-- name: Unpack the archive
+- name: Unpack the archive (as 'nobody')
   unarchive:
     remote_src: yes
     creates: "{{ nextcloud__home }}/config/config.sample.php"
@@ -53,7 +53,25 @@
   when: not nextcloud_stat.stat.exists
 
 - name: Move the installation to its final destination
-  command: 'mv {{ nextcloud__home }}-tmp/{{ nextcloud__name }} {{ nextcloud__home }}'
+  command: 'mv {{ nextcloud__home }}-tmp/{{ nextcloud__name }} {{ nextcloud__home }} && chown root:root {{ nextcloud__home }}'
+  when: not nextcloud_stat.stat.exists
+
+- name: Recursively change the owner to the php/webserver user for the installation
+  file:
+    path: "{{ nextcloud__home }}"
+    owner: "{{ nextcloud__user }}"
+    group: "{{ nextcloud__group }}"
+    recurse: yes
+  when: not nextcloud_stat.stat.exists
+
+#TODO lets see if this works
+- name: Change the ownership of the top level directory to the root user (allow changes only below)
+  file:
+    path: "{{ nextcloud__home }}"
+    owner: "root"
+    group: "root"
+    mode: "0750"
+    recurse: no
   when: not nextcloud_stat.stat.exists
 
 - name: Clean up the temporary unpacking directory
@@ -62,17 +80,38 @@
     state: absent
   when: not nextcloud_stat.stat.exists
 
-#TODO Configure
+- name: Check whether the sample config is available
+  stat:
+    path: "{{ nextcloud__home }}/config/config.sample.php"
+  register: nextcloud_sample_config_stat
+
+- name: Fail if sample config was missing
+  fail:
+    msg: "Please verify manually: {{ nextcloud__home }}/config/config.sample.php was missing"
+  when: not nextcloud_sample_config_stat.stat.exists
+
+- name: Check whether the config is already done
+  stat:
+    path: "{{ nextcloud__home }}"
+  register: nextcloud_config_stat
+
+# Config must be writeable for the installer it seems
 - name: Configure the installation
   template:
     src: "config.php.j2"
     dest: "{{ nextcloud__config }}"
+    owner: "{{ nextcloud__user }}"
+    group: "{{ nextcloud__group }}"
+    mode: "0640"
+  when: not nextcloud_config_stat.stat.exists
 
-- name: Install scripts setting the correct permissions
+- name: Install scripts for setting the correct permissions for maintenance
   template:
     src: "nextcloud-prepare.sh.j2"
-#TODO scriptsdir
-    dest: "{{ nextcloud__scripts_dir }}/nextcloud-prepare-{{ item.0 }}.sh"
+    dest: "{{ nextcloud__home }}/nextcloud-prepare-{{ item.0 }}.sh"
+    mode: "0750"
+    owner: "root"
+    group: "root"
   vars:
     nextcloud_maintenance: "{{ item.1 }}"
   with_together:
