@@ -15,3 +15,10 @@ default__nextcloud__config: "{{ default__nextcloud__home }}/config/config.php"
 default__nextcloud__autoconfig: "{{ default__nextcloud__home }}/config/autoconfig.php"
 default__nextcloud__checksum: "sha256:5743314a71e972ae46a14b36b37394d4545915aa5f32d9e12ba786d04c1f1d11"
 default__nextcloud__download_upstream: "https://download.nextcloud.com/community/nextcloud-{{ default__nextcloud__version }}.{{ default__nextcloud__archive }}"
+
+default__nextcloud__db_name: 'nextcloud'
+default__nextcloud__db_user: 'nextcloud'
+default__nextcloud__admin_user: 'nextcloud'
+default__nextcloud__db_pass_placeholder: '%DBPASS%'
+default__nextcloud__admin_pass_placeholder: '%ADMINPASS%'
+
