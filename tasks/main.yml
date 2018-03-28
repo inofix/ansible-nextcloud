@@ -39,7 +39,7 @@
   file:
     path: "{{ nextcloud__home }}-tmp"
     state: directory
-    mode: "0755"
+    mode: "0750"
     owner: "{{ app__nextcloud__user }}"
     group: "{{ app__nextcloud__group }}"
   when: not nextcloud_stat.stat.exists
@@ -53,7 +53,7 @@
   when: not nextcloud_stat.stat.exists
 
 - name: Move the installation to its final destination
-  command: 'mv {{ nextcloud__home }}-tmp/{{ nextcloud__name }} {{ nextcloud__home }} && chown root:root {{ nextcloud__home }}'
+  shell: 'mv "{{ nextcloud__home }}-tmp/{{ nextcloud__name }}" "{{ nextcloud__home }}" && chown root:root "{{ nextcloud__home }}"'
   when: not nextcloud_stat.stat.exists
 
 - name: Recursively change the owner to the php/webserver user for the installation
@@ -70,7 +70,7 @@
     path: "{{ nextcloud__home }}"
     owner: "root"
     group: "root"
-    mode: "0750"
+    mode: "0755"
     recurse: no
   when: not nextcloud_stat.stat.exists
 
@@ -92,14 +92,23 @@
 
 - name: Check whether the config is already done
   stat:
-    path: "{{ nextcloud__home }}"
+    path: "{{ nextcloud__config }}"
   register: nextcloud_config_stat
 
 # Config must be writeable for the installer it seems
-- name: Configure the installation
-  template:
-    src: "config.php.j2"
+- name: Prepare the Config
+  file:
+    state: touch
     dest: "{{ nextcloud__config }}"
+    owner: "{{ nextcloud__user }}"
+    group: "{{ nextcloud__group }}"
+    mode: "0640"
+  when: not nextcloud_config_stat.stat.exists
+
+- name: Prepare for the automatical configuration of the installation
+  template:
+    src: "autoconfig.php.j2"
+    dest: "{{ nextcloud__autoconfig }}"
     owner: "{{ nextcloud__user }}"
     group: "{{ nextcloud__group }}"
     mode: "0640"
