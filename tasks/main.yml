@@ -80,40 +80,6 @@
     state: absent
   when: not nextcloud_stat.stat.exists
 
-- name: Check whether the sample config is available
-  stat:
-    path: "{{ nextcloud__home }}/config/config.sample.php"
-  register: nextcloud_sample_config_stat
-
-- name: Fail if sample config was missing
-  fail:
-    msg: "Please verify manually: {{ nextcloud__home }}/config/config.sample.php was missing"
-  when: not nextcloud_sample_config_stat.stat.exists
-
-- name: Check whether the config is already done
-  stat:
-    path: "{{ nextcloud__config }}"
-  register: nextcloud_config_stat
-
-# Config must be writeable for the installer it seems
-- name: Prepare the Config
-  file:
-    state: touch
-    dest: "{{ nextcloud__config }}"
-    owner: "{{ nextcloud__user }}"
-    group: "{{ nextcloud__group }}"
-    mode: "0640"
-  when: not nextcloud_config_stat.stat.exists
-
-- name: Prepare for the automatical configuration of the installation
-  template:
-    src: "autoconfig.php.j2"
-    dest: "{{ nextcloud__autoconfig }}"
-    owner: "{{ nextcloud__user }}"
-    group: "{{ nextcloud__group }}"
-    mode: "0640"
-  when: not nextcloud_config_stat.stat.exists
-
 - name: Install scripts for setting the correct permissions for maintenance
   template:
     src: "nextcloud-prepare.sh.j2"
