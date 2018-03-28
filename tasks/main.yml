@@ -80,6 +80,14 @@
     state: absent
   when: not nextcloud_stat.stat.exists
 
+- name: Install the data dir
+  file:
+    state: directory
+    path: '{{ nextcloud__data }}'
+    mode: '0750'
+    owner: '{{ nextcloud__user }}'
+    group: '{{ nextcloud__group }}'
+
 - name: Install scripts for setting the correct permissions for maintenance
   template:
     src: "nextcloud-prepare.sh.j2"
