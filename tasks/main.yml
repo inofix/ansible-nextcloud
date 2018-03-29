@@ -74,6 +74,14 @@
     recurse: no
   when: not nextcloud_stat.stat.exists
 
+- name: Change the mode of the config directory to protect the passwords as much as possible
+  file:
+    path: "{{ nextcloud__home }}"
+    owner: "{{ nextcloud__user }}"
+    group: "{{ nextcloud__group }}"
+    mode: "0700"
+    recurse: no
+
 - name: Clean up the temporary unpacking directory
   file:
     path: "{{ nextcloud__home }}-tmp"
@@ -87,6 +95,14 @@
     mode: '0750'
     owner: '{{ nextcloud__user }}'
     group: '{{ nextcloud__group }}'
+
+- name: Install the maintenance / scripts dir
+  file:
+    state: directory
+    path: '{{ nextcloud__maintenance }}'
+    mode: '0750'
+    owner: 'root'
+    group: 'root'
 
 - name: Install scripts for setting the correct permissions for maintenance
   template:
