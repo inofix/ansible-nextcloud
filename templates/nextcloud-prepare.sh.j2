@@ -69,6 +69,7 @@ find "${nextcloud_data}" -type d -print0 | xargs -0 chmod 0750
 # first be most restrictive
 chown -R ${root_user}:${php_group} "${nextcloud_home}"
 chmod 0750 "${nextcloud_home}"
+chmod 0700 -R "${nextcloud_home}/config"
 chmod 0750 "${nextcloud_data}"
 
 {% if (nextcloud_maintenance) %}
