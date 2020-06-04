@@ -29,15 +29,15 @@ if [ "$who_am_i" != "$root_user" ] ; then
 fi
 
 if [ ! -f "${nextcloud_config}" ] ||
-    [ ! -e "${nextcloud__data}" ] ; then
+    [ ! -e "${nextcloud_data}" ] ; then
     echo "Error: Nextcloud was not installed correctly!"
     exit 1
 fi
 
 check_data=$( grep "^'datadirectory' " ${nextcloud_config} | cut -d"'" -f4 )
-if [ "${nextcloud__data%/}" != "${check_data%/}" ] ; then
+if [ "${nextcloud_data%/}" != "${check_data%/}" ] ; then
     echo "Error: Other data dir used than configured, please check manually"
-    echo "       ${nextcloud__data%/} vs. ${check_data%/}"
+    echo "       ${nextcloud_data%/} vs. ${check_data%/}"
     exit 1
 fi
 
