@@ -29,15 +29,15 @@ if [ "$who_am_i" != "$root_user" ] ; then
 fi
 
 if [ ! -f "${nextcloud_config}" ] ||
-    [ ! -e "${nextcloud__data}" ] ; then
+    [ ! -e "${nextcloud_data}" ] ; then
     echo "Error: Nextcloud was not installed correctly!"
     exit 1
 fi
 
-check_data=$( grep "^'datadirectory' " ${nextcloud_config} | cut -d"'" -f4 )
-if [ "${nextcloud__data%/}" != "${check_data%/}" ] ; then
+check_data=$( grep "^\s*'datadirectory' " ${nextcloud_config} | cut -d"'" -f4 )
+if [ "${nextcloud_data%/}" != "${check_data%/}" ] ; then
     echo "Error: Other data dir used than configured, please check manually"
-    echo "       ${nextcloud__data%/} vs. ${check_data%/}"
+    echo "       ${nextcloud_data%/} vs. ${check_data%/}"
     exit 1
 fi
 
@@ -48,7 +48,7 @@ check_mode=$( grep "^'maintenance' " ${nextcloud_config} | cut -d"'" -f4 )
 if [ "$check_mode" == "true" ] ; then
     echo "Warning: The server was already in maintenance mode"
 else
-    sed -i "s;^'maintenance' => false,;'maintenance' => true," "${nextcloud_config}"
+    sed -i "s;^'maintenance' => false,;'maintenance' => true,;" "${nextcloud_config}"
 fi
 {% else %}
 cp "${nextcloud_config}" "${nextcloud_config}.current.backup"
@@ -78,7 +78,7 @@ chown -R ${root_user}:${php_group} "${nextcloud_data}"
 
 # allow changes during upgrades
 echo "TODO: Does really everything have to belong to the PHP User?"
-chown -R ${php_user}:${php_group} "${nextcloud_home}/*"
+chown -R ${php_user}:${php_group} "${nextcloud_home}"/*
 {% else %}
 # in production mode, obviously data must be writable
 chown -R ${php_user}:${php_group} "${nextcloud_data}"
@@ -105,7 +105,7 @@ fi
 echo "Now upgrade with e.g. the following instructions:"
 echo " # cd ${nextcloud_home}"
 echo " # sudo -u ${php_user} php occ upgrade"
-echo " # ${0}"
+echo " # {{ nextcloud__maintenance }}/nextcloud-prepare-production.sh"
 {% else %}
 echo "The server should be running:"
 echo "Now test with your browser that everything is working as expected."
