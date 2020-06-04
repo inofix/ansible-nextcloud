@@ -107,7 +107,7 @@
 - name: Install scripts for setting the correct permissions for maintenance
   template:
     src: "nextcloud-prepare.sh.j2"
-    dest: "{{ nextcloud__home }}/nextcloud-prepare-{{ item.0 }}.sh"
+    dest: "{{ nextcloud__maintenance }}/nextcloud-prepare-{{ item.0 }}.sh"
     mode: "0750"
     owner: "root"
     group: "root"
