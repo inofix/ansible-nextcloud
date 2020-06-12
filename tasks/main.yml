@@ -1,6 +1,13 @@
 ---
 # tasks file for nextcloud
 #TODO depend on a separate PHP installation role?
+
+- name: Provide the recommended resources
+  replace:
+    dest: "{{ app__php__ini }}"
+    regexp: "^memory_limit = .*$"
+    replace: "memory_limit = 512M"
+
 - name: Make sure the right group exists
   group:
     name: "{{ app__nextcloud__group }}"
